@@ -19,13 +19,15 @@ def main():
             st.write(prompt)
 
         response = requests.post(
-            "https://v749g1yxl6.execute-api.us-east-1.amazonaws.com/test/sme_assistant",
+            #"https://v749g1yxl6.execute-api.us-east-1.amazonaws.com/test/sme_assistant",
+            "https://1drdjbbcj7.execute-api.us-east-1.amazonaws.com/stage_sme_assistant/sme_assistant",
             json={"prompt": prompt}
         )
         if response.status_code == 200:
             response_data = response.json()
             if isinstance(response_data, dict) and "body" in response_data:
                 result = json.loads(response_data["body"])
+                print(response_data)
                 st.session_state.messages.append({"role": "assistant", "content": result})
                 with st.chat_message("assistant"):
                     st.write(result)
