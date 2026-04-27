@@ -86,7 +86,7 @@ with col2:
             with st.spinner("Analyzing equipment data..."):
                 try:
                     response = requests.post(
-                        "https://v749g1yxl6.execute-api.us-east-1.amazonaws.com/test/sme_assistant",
+                        "https://1drdjbbcj7.execute-api.us-east-1.amazonaws.com/stage_sme_assistant/sme_assistant",
                         json={"prompt": prompt}
                     )
                     
