@@ -1,13 +1,13 @@
-# Chatbot App (LangChain + AWS Bedrock)
+# Chatbot App (LangChain Agent + AWS Bedrock)
 
-Simple Python chatbot backend that calls an AWS Bedrock model using `langchain-aws`.
+Interactive console chatbot using:
+- `ChatBedrockConverse` (Bedrock model connector)
+- `create_agent` (LangChain agent runtime)
+- `InMemorySaver` (LangGraph checkpointer for thread state)
 
-## What this project uses
-
-- Python `>=3.13`
-- `langchain` + `langchain-aws`
-- AWS Bedrock model: `us.deepseek.r1-v1:0` (configured in `chatbot_backend.py`)
-- AWS credentials profile: `default`
+Current model configuration lives in `chatbot_backend.py` and uses:
+- model: `us.deepseek.r1-v1:0`
+- AWS profile: `default`
 
 ## 1) Prerequisites
 
@@ -109,10 +109,19 @@ python chatbot_backend.py
 
 Expected behavior:
 - prints a startup message
-- sends one test user message to Bedrock
-- prints model response
+- starts an input loop in terminal
+- sends each user message through LangChain agent to Bedrock
+- prints AI response
+- type `exit` to stop
 
-## 7) Common issues
+## 7) How the app is wired
+
+- `ChatbotBackend.get_llm()` creates `ChatBedrockConverse`
+- `ChatbotBackend.get_agent()` wraps that model with `create_agent(...)`
+- checkpointer is `InMemorySaver()` and uses `thread_id="1"` in invoke config
+- `send_message(...)` returns the final assistant text from the agent result object
+
+## 8) Common issues
 
 - **AccessDeniedException**
   - IAM policy missing Bedrock actions, or wrong AWS account/region
@@ -127,7 +136,13 @@ Expected behavior:
 - **Parameter not permitted (for example `temperature`)**
   - Not all Bedrock models accept the same inference params; remove unsupported params and retry
 
+- **`unexpected keyword argument 'llm'` with `create_agent`**
+  - Use `model=` instead of `llm=` in `create_agent(...)`
+
+- **Response extraction errors**
+  - Bedrock/LangChain response content can be string or block list; ensure your extraction logic matches runtime structure
+
 ## Project files
 
-- `chatbot_backend.py` - Bedrock chatbot invocation logic
+- `chatbot_backend.py` - interactive chatbot backend (LLM + agent + loop)
 - `pyproject.toml` - project/dependency config
