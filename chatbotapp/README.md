@@ -104,7 +104,7 @@ uv sync
 ## 6) Run the chatbot backend
 
 ```bash
-python chatbot_backend.py
+uv run python chatbot_backend.py
 ```
 
 Expected behavior:
@@ -114,14 +114,38 @@ Expected behavior:
 - prints AI response
 - type `exit` to stop
 
-## 7) How the app is wired
+## 7) Run the Streamlit frontend (uv + streamlit)
+
+From the `chatbotapp` directory:
+
+```bash
+uv sync
+uv run streamlit run chatbot_frontend.py
+```
+
+Streamlit will print a local URL (typically `http://localhost:8501`).
+Open that URL in your browser and chat in the UI.
+
+### Optional: run on custom port
+
+```bash
+uv run streamlit run chatbot_frontend.py --server.port 8502
+```
+
+### Notes for frontend state
+
+- `chatbot_frontend.py` stores `ChatbotBackend()` in `st.session_state` so it survives Streamlit reruns.
+- Chat messages are also stored in `st.session_state.messages` and re-rendered each run.
+- This allows `InMemorySaver` in the backend agent to remain effective during one browser session.
+
+## 8) How the app is wired
 
 - `ChatbotBackend.get_llm()` creates `ChatBedrockConverse`
 - `ChatbotBackend.get_agent()` wraps that model with `create_agent(...)`
 - checkpointer is `InMemorySaver()` and uses `thread_id="1"` in invoke config
 - `send_message(...)` returns the final assistant text from the agent result object
 
-## 8) Common issues
+## 9) Common issues
 
 - **AccessDeniedException**
   - IAM policy missing Bedrock actions, or wrong AWS account/region
@@ -145,4 +169,5 @@ Expected behavior:
 ## Project files
 
 - `chatbot_backend.py` - interactive chatbot backend (LLM + agent + loop)
+- `chatbot_frontend.py` - Streamlit chat UI
 - `pyproject.toml` - project/dependency config
